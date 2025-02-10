@@ -1,0 +1,3 @@
+Criar template API - dotnet new webapi
+Compilar código - dotnet build
+Rodar - dotnet run
