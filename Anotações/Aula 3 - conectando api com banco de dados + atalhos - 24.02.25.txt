@@ -1,0 +1,8 @@
+ctor -> cria classe construtor
+prop -> cria variável
+ALT + SHIFT + F -> organiza o código
+dotnet ef migrations add InitialCreate
+dotnet ef database update
+dotnet ef migrations script -o./script01_TabelaPersonagens.sql
+
+git commit -m "Aula 03 Realizando conexão com Banco de Dados - 24.02.24"
