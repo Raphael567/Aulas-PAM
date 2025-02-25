@@ -25,6 +25,11 @@ namespace RPGAPI.Controllers
             new Personagem() { Id = 7, Nome = "Radagast", PontosVida=100, Forca=25, Defesa=11, Inteligencia=35, Classe=ClasseEnum.Mago }
         };
 
+        public List<Personagem> GetPersonagens() 
+        {
+            return personagens;
+        }
+
         [HttpGet("Get")]
         public IActionResult GetFirst()
         {
