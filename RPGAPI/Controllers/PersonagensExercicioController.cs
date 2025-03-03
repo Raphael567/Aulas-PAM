@@ -56,7 +56,10 @@ namespace RPGAPI.Controllers
         [HttpPost("PostValidacao")]
         public IActionResult PostValidacao(Personagem novoPersonagem) {
             if (novoPersonagem.Inteligencia < 10 || novoPersonagem.Inteligencia > 30)
-                return BadRequest("Inteligência não pode ter valor menor que 10 ou maior 30");
+                return BadRequest(new {
+                    Mensagem = $"Defesa não pode ter valor menor que 10 ou inteligência maior que 30",
+                    StatusCode = 400
+                });
             personagens.Add(novoPersonagem);
             return Ok(personagens);
         }
@@ -64,7 +67,10 @@ namespace RPGAPI.Controllers
         [HttpPost("PostValidacaoMago")]
         public IActionResult PostValidacaoMago(Personagem novoPersonagem) {
             if(novoPersonagem.Classe == ClasseEnum.Mago && novoPersonagem.Inteligencia < 35)
-                return BadRequest("Personagem Mago deve ter 35 ou mais de inteligência");
+                return BadRequest(new {
+                    Mensagem = $"Personagem Mago deve ter 35 ou mais de inteligência",
+                    StatusCode = 400
+                });
             personagens.Add(novoPersonagem);
             return Ok(personagens);
         }
