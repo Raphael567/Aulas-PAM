@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using RpgApi.Models;
 using RPGAPI.Models;
 using RPGAPI.Models.Enums;
@@ -13,15 +14,14 @@ namespace RPGAPI.Data
     public class DataContext : DbContext
     {
         //Classe das configurações do banco de dados
-        public DataContext(DbContextOptions<DataContext> options) : base(options)
-        {
-
-        }
+        public DataContext(DbContextOptions<DataContext> options) : base(options){}
 
         //Referenciar igual ao contexto do banco de dados   
         public DbSet<Personagem> TB_PERSONAGENS { get; set; }
         public DbSet<Arma> TB_ARMAS { get; set; }
         public DbSet<Usuario> TB_USUARIOS { get; set; }
+        public DbSet<Habilidade> TB_HABILIDADES { get; set; }
+        public DbSet<PersonagemHabilidade> TB_PERSONAGENS_HABILIDADES { get; set; }
 
         //Método que já existe e o override é uma sobrescrição do método, nos permite personalizar ele
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -115,6 +115,12 @@ namespace RPGAPI.Data
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             configurationBuilder.Properties<string>().HaveColumnType("Varchar").HaveMaxLength(200);
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.ConfigureWarnings(warnings => 
+                warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
         }
 
         //base.OnModelCreating(modelBuilder);
