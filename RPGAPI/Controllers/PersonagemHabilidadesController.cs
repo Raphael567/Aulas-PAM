@@ -19,6 +19,38 @@ namespace RPGAPI.Controllers
         {
             _context = context;
         }
+        
+        [HttpGet("{personagemId}")]
+        public async Task<ActionResult<List<PersonagemHabilidade>>> GetHabilidadePorPersonagem(int personagemId)
+        {
+            try
+            {
+                var personagemHabilidades = await _context.TB_PERSONAGENS_HABILIDADES
+                    .Where(ph => ph.PersonagemId == personagemId)
+                    .Include(ph => ph.Habilidade)
+                    .ToListAsync();
+
+                return Ok(personagemHabilidades);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("GetHabilidades")]	
+        public async Task<IActionResult> GetHabilidades()
+        {
+            try
+            {
+                List<Habilidade> habilidades = await _context.TB_HABILIDADES.ToListAsync();
+                return Ok(habilidades);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
         [HttpPost]
         public async Task<IActionResult> AddPersonagemHabilidadesAsync(PersonagemHabilidade novoPersonagemHabilidade)
@@ -47,6 +79,34 @@ namespace RPGAPI.Controllers
 
                 return Ok(linhaAfetadas);
 
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("DeletarPersonagemHabilidade")]
+        public async Task<IActionResult> DeletarPersonagemHabilidade(PersonagemHabilidade personagemHabilidade)
+        {
+            try
+            {
+                if (personagemHabilidade == null)
+                    return NotFound("PersonagemHabilidade não encontrado.");
+
+                PersonagemHabilidade personagemHabilidadeDb = await _context.TB_PERSONAGENS_HABILIDADES
+                    .FirstOrDefaultAsync(ph => ph.PersonagemId == personagemHabilidade.PersonagemId && 
+                                               ph.HabilidadeId == personagemHabilidade.HabilidadeId);
+
+
+                if (personagemHabilidadeDb == null)
+                    return NotFound("PersonagemHabilidade não encontrado.");
+
+                _context.TB_PERSONAGENS_HABILIDADES.Remove(personagemHabilidadeDb);
+
+                await _context.SaveChangesAsync();
+
+                return Ok("PersonagemHabilidade deletado com sucesso.");
             }
             catch (System.Exception ex)
             {

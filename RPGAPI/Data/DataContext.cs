@@ -47,6 +47,9 @@ namespace RPGAPI.Data
                 .WithOne(e => e.Personagem)
                 .HasForeignKey<Arma>(e => e.PersonagemId)
                 .IsRequired();
+            
+            modelBuilder.Entity<PersonagemHabilidade>()
+                .HasKey(ph => new {ph.PersonagemId, ph.HabilidadeId });
 
             modelBuilder.Entity<Personagem>().HasData
             (
@@ -69,9 +72,6 @@ namespace RPGAPI.Data
                 new Arma() { Id = 6, Nome = "Foice", Dano = 33, PersonagemId = 6 },
                 new Arma() { Id = 7, Nome = "Cajado", Dano = 32, PersonagemId = 7 }
             );
-
-            modelBuilder.Entity<PersonagemHabilidade>()
-                .HasKey(ph => new {ph.PersonagemId, ph.HabilidadeId });
 
             modelBuilder.Entity<Habilidade>().HasData
             (
