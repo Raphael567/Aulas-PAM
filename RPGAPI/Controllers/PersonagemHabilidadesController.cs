@@ -26,9 +26,7 @@ namespace RPGAPI.Controllers
             try
             {
                 var personagemHabilidades = await _context.TB_PERSONAGENS_HABILIDADES
-                    .Where(ph => ph.PersonagemId == personagemId)
-                    .Include(ph => ph.Habilidade)
-                    .ToListAsync();
+                    .Where(ph => ph.PersonagemId == personagemId).ToListAsync();
 
                 return Ok(personagemHabilidades);
             }
@@ -103,7 +101,6 @@ namespace RPGAPI.Controllers
                     return NotFound("PersonagemHabilidade não encontrado.");
 
                 _context.TB_PERSONAGENS_HABILIDADES.Remove(personagemHabilidadeDb);
-
                 await _context.SaveChangesAsync();
 
                 return Ok("PersonagemHabilidade deletado com sucesso.");

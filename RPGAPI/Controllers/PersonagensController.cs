@@ -21,15 +21,17 @@ namespace RPGAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetSingle(int id)
+        public async Task<ActionResult<Personagem>> GetSingle(int id)
         {
             try
             {
-                Personagem p = await _context.TB_PERSONAGENS
-                    .Include(ar => ar.Arma)
-                    .Include(ph => ph.PersonagemHabilidades)
-                        .ThenInclude(h => h.Habilidade)
-                    .FirstOrDefaultAsync(pBusca => pBusca.Id == id);   
+                Personagem? p = await _context.TB_PERSONAGENS
+                .Include(p => p.Arma)
+                .Include(p => p.PersonagemHabilidades)
+                    .ThenInclude(ps => ps.Habilidade)
+                .Include(p => p.Usuario)
+                .FirstOrDefaultAsync(pBusca => pBusca.Id == id);
+
                 return Ok(p);
             }
             catch(System.Exception ex)
