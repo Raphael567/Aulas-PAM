@@ -124,5 +124,6 @@ namespace RPGAPI.Data
         }
 
         //base.OnModelCreating(modelBuilder);
+
     }
 }
