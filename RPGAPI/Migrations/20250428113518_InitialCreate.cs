@@ -195,12 +195,6 @@ namespace RPGAPI.Migrations
                 name: "IX_TB_PERSONAGENS_HABILIDADES_HabilidadeId",
                 table: "TB_PERSONAGENS_HABILIDADES",
                 column: "HabilidadeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TB_PERSONAGENS_HABILIDADES_PersonagemId_HabilidadeId",
-                table: "TB_PERSONAGENS_HABILIDADES",
-                columns: new[] { "PersonagemId", "HabilidadeId" },
-                unique: true);
         }
 
         /// <inheritdoc />

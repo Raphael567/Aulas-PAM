@@ -12,7 +12,7 @@ using RPGAPI.Data;
 namespace RPGAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20250416192829_InitialCreate")]
+    [Migration("20250428113518_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -228,9 +228,6 @@ namespace RPGAPI.Migrations
 
                     b.HasIndex("HabilidadeId");
 
-                    b.HasIndex("PersonagemId")
-                        .IsUnique();
-
                     b.ToTable("TB_PERSONAGENS_HABILIDADES", (string)null);
 
                     b.HasData(
@@ -436,8 +433,8 @@ namespace RPGAPI.Migrations
                         .IsRequired();
 
                     b.HasOne("RPGAPI.Models.Personagem", "Personagem")
-                        .WithOne("PersonagemHabilidades")
-                        .HasForeignKey("RPGAPI.Models.PersonagemHabilidade", "PersonagemId")
+                        .WithMany("PersonagemHabilidades")
+                        .HasForeignKey("PersonagemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -466,8 +463,7 @@ namespace RPGAPI.Migrations
                 {
                     b.Navigation("Arma");
 
-                    b.Navigation("PersonagemHabilidades")
-                        .IsRequired();
+                    b.Navigation("PersonagemHabilidades");
                 });
 
             modelBuilder.Entity("RPGAPI.Models.Usuario", b =>

@@ -25,12 +25,10 @@ namespace RPGAPI.Controllers
         {
             try
             {
-                Personagem? p = await _context.TB_PERSONAGENS
-                .Include(p => p.Arma)
-                .Include(p => p.PersonagemHabilidades)
-                    .ThenInclude(ps => ps.Habilidade)
-                .Include(p => p.Usuario)
-                .FirstOrDefaultAsync(pBusca => pBusca.Id == id);
+
+                Personagem p = await _context.TB_PERSONAGENS
+                    .Include(p => p.Usuario)
+                    .FirstOrDefaultAsync(pBusca => pBusca.Id == id);
 
                 return Ok(p);
             }

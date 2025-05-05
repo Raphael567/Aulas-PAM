@@ -7,8 +7,8 @@ namespace RPGAPI.Models.DTOs
 {
     public class AlterarSenhaDTO
     {
-        public int UsuarioId { get; set; }
-        public string PasswordString { get; set; }
-        public string NovaSenha { get; set; }
+        public int IdUsuario { get; set; }
+        public string Password { get; set; }
+        public string NewPassword { get; set; }
     }
 }

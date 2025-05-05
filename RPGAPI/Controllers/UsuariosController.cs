@@ -27,20 +27,6 @@ namespace RPGAPI.Controllers
             return false;
         }
 
-        [HttpGet ("GetAll")]
-        public async Task<IActionResult> GettAllUsuarios()
-        {
-            try
-            {
-                List<Usuario> users = await _context.TB_USUARIOS.ToListAsync();
-                return Ok(users);
-            }
-            catch (System.Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
         [HttpPost ("Registrar")]
         public async Task<IActionResult> RegistrarUsuario(Usuario user)
         {
@@ -71,49 +57,49 @@ namespace RPGAPI.Controllers
             {
                 Usuario? usuario = await _context.TB_USUARIOS
                     .FirstOrDefaultAsync(x => x.Username.ToLower().Equals(credenciais.Username.ToLower()));
-                
+
                 if (usuario == null)
-                    throw new System.Exception("Usuario não encontrado.");
+                    throw new System.Exception("Usuário não encontrado");
 
-                else if (!Criptografia.VerificarPasswordHash(credenciais.PasswordString, usuario.PasswordHash, usuario.PasswordSalt))
+                if (!Criptografia.VerificarPasswordHash(credenciais.PasswordString, usuario.PasswordHash, usuario.PasswordSalt))
                     throw new System.Exception("Senha incorreta");
-                else
-                {
-                    usuario.DataAcesso = DateTime.Now;
-                    
-                    _context.TB_USUARIOS.Update(usuario);
-                    await _context.SaveChangesAsync();
 
-                    return Ok(usuario);
-                }
+                usuario.DataAcesso = DateTime.Now;
+                _context.Entry(usuario).Property(x => x.DataAcesso).IsModified = true;
+                await _context.SaveChangesAsync();
+
+                return Ok(usuario);
             }
             catch (System.Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-        }
+}
 
-        
+
         [HttpPut("AlterarSenha")]
-        public async Task<IActionResult> AlterarSenhaUsuario(AlterarSenhaDTO request)
+        public async Task<IActionResult> AlterarSenha(AlterarSenhaDTO dados)
         {
             try
             {
-                Usuario usuarioBanco = await _context.TB_USUARIOS.FirstOrDefaultAsync(u => u.Id == request.UsuarioId);
-                if (usuarioBanco == null)
-                    throw new System.Exception("Usuário não encontrado");
-                
-                else if (!Criptografia.VerificarPasswordHash(request.PasswordString, usuarioBanco.PasswordHash, usuarioBanco.PasswordSalt))
-                    throw new System.Exception("Senha incorreta");
+                var usuario = await _context.TB_USUARIOS
+                    .FirstOrDefaultAsync(x => x.Id == dados.IdUsuario);
 
-                Criptografia.CriarPasswordHash(request.NovaSenha, out byte[] novoHash, out byte[] novoSalt);
-                usuarioBanco.PasswordHash = novoHash;
-                usuarioBanco.PasswordSalt = novoSalt;
-                
-                _context.TB_USUARIOS.Update(usuarioBanco);
+                if (usuario == null)
+                    return NotFound("Usuário não encontrado.");
+
+                if (!Criptografia.VerificarPasswordHash(dados.Password, usuario.PasswordHash, usuario.PasswordSalt))
+                    return BadRequest("Senha atual incorreta.");
+
+                Criptografia.CriarPasswordHash(dados.NewPassword, out byte[] novaHash, out byte[] novoSalt);
+
+                usuario.PasswordHash = novaHash;
+                usuario.PasswordSalt = novoSalt;
+
+                _context.TB_USUARIOS.Update(usuario);
                 await _context.SaveChangesAsync();
 
-                return Ok("Senha alterado com sucesso!");
+                return Ok("SENHA ALTERADA");
             }
             catch (Exception ex)
             {
@@ -121,31 +107,18 @@ namespace RPGAPI.Controllers
             }
         }
 
-        // [HttpPut("AlterarSenha")]
-        // public async Task<IActionResult> AlterarSenhaUsuario(Usuario credenciais, string novaSenha)
-        // {
-        //     try
-        //     {
-        //         Usuario usuarioBanco = await _context.TB_USUARIOS.FirstOrDefaultAsync(u => u.Id == credenciais.Id);
-        //         if (usuarioBanco == null)
-        //             throw new System.Exception("Usuário não encontrado");
-                
-        //         else if (!Criptografia.VerificarPasswordHash(credenciais.PasswordString, usuarioBanco.PasswordHash, usuarioBanco.PasswordSalt))
-        //             throw new System.Exception("Senha incorreta");
-
-        //         Criptografia.CriarPasswordHash(novaSenha, out byte[] novoHash, out byte[] novoSalt);
-        //         usuarioBanco.PasswordHash = novoHash;
-        //         usuarioBanco.PasswordSalt = novoSalt;
-                
-        //         _context.TB_USUARIOS.Update(usuarioBanco);
-        //         await _context.SaveChangesAsync();
-
-        //         return Ok("Senha alterado com sucesso!");
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         return BadRequest(ex.Message);
-        //     }
-        // }
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> Get()
+        {
+            try
+            {
+                List<Usuario> lista = await _context.TB_USUARIOS.ToListAsync();
+                return Ok(lista);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
