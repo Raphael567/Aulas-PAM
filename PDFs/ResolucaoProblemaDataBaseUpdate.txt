@@ -1,0 +1,10 @@
+//Incluir Using
+using Microsoft.EntityFrameworkCore.Diagnostics;
+
+
+//Incluir na classe DataContext
+ protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.ConfigureWarnings(warnings =>
+              warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
+        }

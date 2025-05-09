@@ -1,0 +1,32 @@
+--Configuração Inicial
+git config --global init.defaultBranch main  
+git config --global user.name "SEU NOME"  
+git config --global user.email "SEUEMAIL@SEUEMAIL.COM" 
+
+echo "#API RPG - Turma 3AI" >> README.md  (conferir se projeto já tem arquivo)
+dotnet new gitignore (conferir se projeto já tem arquivo)
+
+--Subindo para o repositório
+git init  
+git add . 
+git commit -m "Aula AA - Descricao da Aula"
+git branch -M main  
+git remote add origin https://github.com/COMPLEMENTO
+git push -u origin main
+
+--Baixar projeto em uma aula seguinte, caso esteja no Git
+- Criar pasta com o nome do projeto. Ex.: RpgApi
+- Entrar na pasta, clicar com direito e abrir com code
+- Abrir terminal e digitar
+- git clone https://github.com/COMPLEMENTO .  (Digitar o ponto para que baixe do git sem pasta com nome do repositório de lá)
+- Digitar Credenciais do git
+
+--Atualizar projeto no respotitório
+git status 
+git add . 
+git commit -m “PAM II - Aula AA - Descrição da Aula” 
+git push [-u origin main] 
+
+
+
+
