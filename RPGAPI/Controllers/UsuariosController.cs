@@ -1,21 +1,25 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using RpgApi.Data;
 using Microsoft.EntityFrameworkCore;
-using RPGAPI.Data;
-using RPGAPI.Models;
-using RPGAPI.Models.DTOs;
-using RPGAPI.Utils;
+using RpgApi.Models;
+using RpgApi.Utils;
 
-namespace RPGAPI.Controllers
+
+namespace RpgApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     public class UsuariosController : ControllerBase
     {
-        private readonly DataContext _context;
+        private readonly DataContext _context;        
 
         public UsuariosController(DataContext context)
         {
-            _context = context;
+            _context = context;            
         }
 
         private async Task<bool> UsuarioExistente(string username)
@@ -27,14 +31,14 @@ namespace RPGAPI.Controllers
             return false;
         }
 
-        [HttpPost ("Registrar")]
+        [HttpPost("Registrar")]
         public async Task<IActionResult> RegistrarUsuario(Usuario user)
         {
             try
             {
                 if (await UsuarioExistente(user.Username))
                     throw new System.Exception("Nome de usuário já existe");
-                
+
                 Criptografia.CriarPasswordHash(user.PasswordString, out byte[] hash, out byte[] salt);
                 user.PasswordString = string.Empty;
                 user.PasswordHash = hash;
@@ -46,7 +50,7 @@ namespace RPGAPI.Controllers
             }
             catch (System.Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex.Message + " - " + ex.InnerException);
             }
         }
 
@@ -56,59 +60,62 @@ namespace RPGAPI.Controllers
             try
             {
                 Usuario? usuario = await _context.TB_USUARIOS
-                    .FirstOrDefaultAsync(x => x.Username.ToLower().Equals(credenciais.Username.ToLower()));
+                   .FirstOrDefaultAsync(x => x.Username.ToLower().Equals(credenciais.Username.ToLower()));
 
                 if (usuario == null)
-                    throw new System.Exception("Usuário não encontrado");
+                {
+                    throw new System.Exception("Usuário não encontrado.");
+                }
+                else if (!Criptografia.VerificarPasswordHash(credenciais.PasswordString, usuario.PasswordHash, usuario.PasswordSalt))
+                {
+                    throw new System.Exception("Senha incorreta.");
+                }
+                else
+                {
+                     usuario.DataAcesso = DateTime.Now;
+                    _context.TB_USUARIOS.Update(usuario);
+                    await _context.SaveChangesAsync();
 
-                if (!Criptografia.VerificarPasswordHash(credenciais.PasswordString, usuario.PasswordHash, usuario.PasswordSalt))
-                    throw new System.Exception("Senha incorreta");
+                    usuario.PasswordHash = null;//Remoção do hash/salt para não transitar no retorno da requisição.
+                    usuario.PasswordSalt = null;
 
-                usuario.DataAcesso = DateTime.Now;
-                _context.Entry(usuario).Property(x => x.DataAcesso).IsModified = true;
-                await _context.SaveChangesAsync();
-
-                return Ok(usuario);
+                    return Ok(usuario);
+                }
             }
             catch (System.Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex.Message + " - " + ex.InnerException);
             }
-}
+        }
 
-
+        //Método para alteração de Senha.
         [HttpPut("AlterarSenha")]
-        public async Task<IActionResult> AlterarSenha(AlterarSenhaDTO dados)
+        public async Task<IActionResult> AlterarSenhaUsuario(Usuario credenciais)
         {
             try
             {
-                var usuario = await _context.TB_USUARIOS
-                    .FirstOrDefaultAsync(x => x.Id == dados.IdUsuario);
+                Usuario? usuario = await _context.TB_USUARIOS //Busca o usuário no banco através do login
+                   .FirstOrDefaultAsync(x => x.Username.ToLower().Equals(credenciais.Username.ToLower()));
 
-                if (usuario == null)
-                    return NotFound("Usuário não encontrado.");
+                if (usuario == null) //Se não achar nenhum usuário pelo login, retorna mensagem.
+                    throw new System.Exception("Usuário não encontrado.");
 
-                if (!Criptografia.VerificarPasswordHash(dados.Password, usuario.PasswordHash, usuario.PasswordSalt))
-                    return BadRequest("Senha atual incorreta.");
-
-                Criptografia.CriarPasswordHash(dados.NewPassword, out byte[] novaHash, out byte[] novoSalt);
-
-                usuario.PasswordHash = novaHash;
-                usuario.PasswordSalt = novoSalt;
+                Criptografia.CriarPasswordHash(credenciais.PasswordString, out byte[] hash, out byte[] salt);
+                usuario.PasswordHash = hash; //Se o usuário existir, executa a criptografia 
+                usuario.PasswordSalt = salt; //guardando o hash e o salt nas propriedades do usuário 
 
                 _context.TB_USUARIOS.Update(usuario);
-                await _context.SaveChangesAsync();
-
-                return Ok("SENHA ALTERADA");
+                int linhasAfetadas = await _context.SaveChangesAsync(); //Confirma a alteração no banco
+                return Ok(linhasAfetadas); //Retorna as linhas afetadas (Geralmente sempre 1 linha msm)
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex.Message + " - " + ex.InnerException);
             }
         }
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetUsuarios()
         {
             try
             {
@@ -117,8 +124,10 @@ namespace RPGAPI.Controllers
             }
             catch (System.Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex.Message + " - " + ex.InnerException);
             }
         }
+
+
     }
 }
