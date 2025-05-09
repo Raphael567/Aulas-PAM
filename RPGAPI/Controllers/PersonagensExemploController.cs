@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using RPGAPI.Models;
-using RPGAPI.Models.Enums;
+using RpgApi.Models;
+using RpgApi.Models.Enuns;
 
-namespace RPGAPI.Controllers
+namespace RpgApi.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     public class PersonagensExemploController : ControllerBase
     {
-        //Lista de Personagens
-        private static List<Personagem> personagens = new List<Personagem>()
+         private static List<Personagem> personagens = new List<Personagem>()
         {
             //Colar os objetos da lista do chat aqui
             new Personagem() { Id = 1, Nome = "Frodo", PontosVida=100, Forca=17, Defesa=23, Inteligencia=33, Classe=ClasseEnum.Cavaleiro},
@@ -25,44 +24,40 @@ namespace RPGAPI.Controllers
             new Personagem() { Id = 7, Nome = "Radagast", PontosVida=100, Forca=25, Defesa=11, Inteligencia=35, Classe=ClasseEnum.Mago }
         };
 
-        public List<Personagem> GetPersonagens() 
-        {
-            return personagens;
-        }
-
-        [HttpGet("Get")]
-        public IActionResult GetFirst()
-        {
-            Personagem p = personagens [0];
-            return Ok(p);
-        }
-
+         //Próximo código aqui
         [HttpGet("GetAll")]
-        public IActionResult Get() 
+        public IActionResult Get()
         {
             return Ok(personagens);
         }
 
-        [HttpGet("GetOrdenado")]
-        public IActionResult GetOrdem() 
+        [HttpGet("{id}")]
+        public IActionResult GetSingle(int id)
         {
-            List<Personagem> listaFinal = personagens.OrderBy(p => p.Forca).ToList();
+            return Ok(personagens.FirstOrDefault(pe => pe.Id == id));
+        }
+
+        [HttpGet("GetOrdenado")]
+        public IActionResult GetOrdem()
+        {
+            List<Personagem> listaFinal = personagens.OrderBy(p => p.Nome).ToList();
             return Ok(listaFinal);
         }
 
         [HttpGet("GetContagem")]
-        public IActionResult GetQuantidade() {
-            return Ok("Quantidade de personagens" + personagens.Count);
+        public IActionResult GetQuantidade()
+        {
+            return Ok("Quantidade de personagens: " + personagens.Count);
         }
 
         [HttpGet("GetSomaForca")]
-        public IActionResult GetSomeForca() 
+        public IActionResult GetSomaForca()
         {
             return Ok(personagens.Sum(p => p.Forca));
         }
 
-        [HttpGet("GetSemCavaleiro")]
-        public IActionResult GetSemCavaleiro() 
+         [HttpGet("GetSemCavaleiro")]
+        public IActionResult GetSemCavaleiro()
         {
             List<Personagem> listaBusca = personagens.FindAll(p => p.Classe != ClasseEnum.Cavaleiro);
             return Ok(listaBusca);
@@ -75,37 +70,51 @@ namespace RPGAPI.Controllers
             return Ok(listaBusca);
         }
 
-        [HttpGet("GetRemovendoMago")]
-        public IActionResult GetRemovendoMagos() {
-            Personagem pRemove = personagens.Find(p => p.Classe == ClasseEnum.Mago);
-            personagens.Remove(pRemove);
-            return Ok("Personagem removido: " + pRemove.Nome);
+        [HttpGet("GetByForca/{forca}")]
+        public IActionResult GetByForca(int forca)
+        {
+            return Ok(personagens.FirstOrDefault(x => x.Forca == forca));
         }
 
-        [HttpGet("GetByForca/{forca}")]
-        public IActionResult Get(int forca)
+        [HttpGet("GetRemovendoMago")]
+        public IActionResult GetRemovendoMagos()
         {
-            List<Personagem> listaFinal = personagens.FindAll(p => p.Forca == forca);
-            return Ok(listaFinal);
+            Personagem? pRemove = personagens.Find(p => p.Classe == ClasseEnum.Mago);
+
+            if (pRemove != null)
+            {
+                personagens.Remove(pRemove);
+                return Ok("Personagem removido: " + pRemove.Nome);
+            }
+            else
+                return BadRequest("Nenhum personagem encontrado para remoção");
+        }
+
+        [HttpGet("GetByInteligencia/{valor}")]
+        public IActionResult GetByInteligencia(int valor)
+        {
+            List<Personagem> listaBusca = personagens.FindAll(p => p.Inteligencia == valor);
+
+            if (listaBusca.Count == 0)
+                return BadRequest("Nenhum personagem encontrado");
+            else
+                return Ok(listaBusca);
+        }
+
+        [HttpGet("BuscaPorId/{id}")]
+        public IActionResult GetById(int id)
+        {
+            return Ok(personagens.FirstOrDefault(fulano => fulano.Id == id));
         }
 
         [HttpPost]
-        public IActionResult AddPersonagem(Personagem novoPersonagem) 
+        public IActionResult AddPersonagem(Personagem novoPersonagem)
         {
             if (novoPersonagem.Inteligencia == 0)
                 return BadRequest("Inteligência não pode ter o valor igual a 0 (zero).");
 
             personagens.Add(novoPersonagem);
             return Ok(personagens);
-        } 
-
-        [HttpGet("GetByEnum/{enumId}")]
-        public IActionResult GetByEnum(int enumId) {
-            ClasseEnum enumDigitado = (ClasseEnum)enumId;
-
-            List<Personagem> listaBusca = personagens.FindAll(p => p.Classe == enumDigitado);
-
-            return Ok(listaBusca);
         }
 
         [HttpPut]
@@ -122,10 +131,21 @@ namespace RPGAPI.Controllers
             return Ok(personagens);
         }
 
-        [HttpDelete("{Id}")]
-        public IActionResult DeletePersonagemById(int id) {
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
             personagens.RemoveAll(pers => pers.Id == id);
             return Ok(personagens);
         }
+
+         [HttpGet("GetByEnum/{enumId}")]
+        public IActionResult GetByEnum(int enumId)
+        {
+            ClasseEnum enumDigitado = (ClasseEnum)enumId;
+            List<Personagem> listaBusca = personagens.FindAll(p => p.Classe == enumDigitado);
+            return Ok(listaBusca);
+        }
+
     }
 }
+

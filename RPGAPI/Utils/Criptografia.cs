@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RPGAPI.Utils
+namespace RpgApi.Utils
 {
     public class Criptografia
     {
@@ -28,8 +28,11 @@ namespace RPGAPI.Utils
                         return false;
                     }
                 }
+                return true;
             }
-            return true;
         }
+
+        
+
     }
 }
