@@ -134,7 +134,7 @@ namespace RpgApi.Controllers
             try
             {
                 //List exigirá o using System.Collections.Generic
-                Usuario usuario = await _context.TB_USUARIOS //Busca o usuário no banco através do Id .FirstOrDefaultAsync(x => x.Id == usuarioId);
+                Usuario usuario = await _context.TB_USUARIOS.FirstOrDefaultAsync(x => x.Id == usuarioId); //Busca o usuário no banco através do Id .FirstOrDefaultAsync(x => x.Id == usuarioId);
                 return Ok(usuario);
             }
             catch (System.Exception ex)
@@ -149,7 +149,8 @@ namespace RpgApi.Controllers
             try
             {
                 //List exigirá o using System.Collections.Generic
-                Usuario usuario = await _context.TB_USUARIOS //Busca o usuário no banco através do login .FirstOrDefaultAsync(x => x.Username.ToLower() == login.ToLower());  return Ok(usuario);
+                Usuario usuario = await _context.TB_USUARIOS.FirstOrDefaultAsync(x => x.Username.ToLower() == login.ToLower()); //Busca o usuário no banco através do login .FirstOrDefaultAsync(x => x.Username.ToLower() == login.ToLower());  return Ok(usuario);
+                return Ok(usuario);
             }
             catch (System.Exception ex)
             {
@@ -163,7 +164,7 @@ namespace RpgApi.Controllers
         {
             try
             {
-                Usuario usuario = await _context.TB_USUARIOS //Busca o usuário no banco através do Id .FirstOrDefaultAsync(x => x.Id == u.Id);
+                Usuario usuario = await _context.TB_USUARIOS.FirstOrDefaultAsync(x => x.Id == u.Id); //Busca o usuário no banco através do Id .FirstOrDefaultAsync(x => x.Id == u.Id);
                 usuario.Latitude = u.Latitude;
                 usuario.Longitude = u.Longitude;
                 var attach = _context.Attach(usuario);
@@ -171,6 +172,7 @@ namespace RpgApi.Controllers
                 attach.Property(x => x.Latitude).IsModified = true;
                 attach.Property(x => x.Longitude).IsModified = true;
                 int linhasAfetadas = await _context.SaveChangesAsync(); //Confirma a alteração no banco return Ok(linhasAfetadas); //Retorna as linhas afetadas (Geralmente sempre 1 linha msm) }
+                return Ok(linhasAfetadas);
             }
             catch (System.Exception ex)
             {
@@ -183,12 +185,13 @@ namespace RpgApi.Controllers
         {
             try
             {
-                Usuario usuario = await _context.TB_USUARIOS //Busca o usuário no banco através do Id .FirstOrDefaultAsync(x => x.Id == u.Id);
+                Usuario usuario = await _context.TB_USUARIOS.FirstOrDefaultAsync(x => x.Id == u.Id); //Busca o usuário no banco através do Id .FirstOrDefaultAsync(x => x.Id == u.Id);
                 usuario.Email = u.Email;
                 var attach = _context.Attach(usuario);
                 attach.Property(x => x.Id).IsModified = false;
                 attach.Property(x => x.Email).IsModified = true;
                 int linhasAfetadas = await _context.SaveChangesAsync(); //Confirma a alteração no banco return Ok(linhasAfetadas); //Retorna as linhas afetadas (Geralmente sempre 1 linha msm) 
+                return Ok(linhasAfetadas);
             }
             catch (System.Exception ex)
             {

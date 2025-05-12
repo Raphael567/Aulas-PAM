@@ -132,7 +132,7 @@ namespace RpgApi.Controllers
             {
                 int linhasAfetadas = 0;
                 Personagem? pEncontrado =
-                await _context.Personagens.FirstOrDefaultAsync(pBusca => pBusca.Id == p.Id);  pEncontrado.PontosVida = 100;
+                await _context.TB_PERSONAGENS.FirstOrDefaultAsync(pBusca => pBusca.Id == p.Id);  pEncontrado.PontosVida = 100;
                 bool atualizou = await TryUpdateModelAsync<Personagem>(pEncontrado, "p",  pAtualizar => pAtualizar.PontosVida);
                 // EF vai detectar e atualizar apenas as colunas que foram alteradas.if (atualizou)
                 linhasAfetadas = await _context.SaveChangesAsync();
@@ -145,7 +145,7 @@ namespace RpgApi.Controllers
         }
 
         [HttpPut("AtualizarFoto")]
-        public async Task<IActionResult> AtualizarFotoAsync(Personagemp)  {
+        public async Task<IActionResult> AtualizarFotoAsync(Personagem p)  {
             try
             {
                 Personagem personagem = await _context.TB_PERSONAGENS  .FirstOrDefaultAsync(x => x.Id == p.Id);
